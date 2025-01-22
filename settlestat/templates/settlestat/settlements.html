@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добро пожаловать в мир статистики! ^^</title>
+</head>
+<body>
+
+    <h2>В таблице имеются следующие данные о населённых пунктах: </h2>
+
+    <!-- Используем шаблонные теги, возможности Django HTML, так меньше кода-->
+<ul>
+    {% for obj in first_settlements %}
+        <li>{{ obj }}</li>
+    {% endfor %}
+</ul>
+
+{% if settlements_left > 0 %}
+    <p>И ещё {{ settlements_left }} строк.</p>
+{% endif %}
+
+</body>
+</html>

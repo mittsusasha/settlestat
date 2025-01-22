@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузить CSV</title>
+</head>
+<body>
+    <h2>Пожалуйста, загрузите CSV-файл датасета с данными о населённых пунктах в базу данных приложения</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Загрузить датасет</button>
+    </form>
+</body>
+</html>
