@@ -2,24 +2,21 @@ from django.urls import path
 from .views import (
     PopulationDistribution,
     ChildrenVsPopulation,
-    ShowPopulationDistribution,
-    ShowChildrenVsPopulation,
+    ShowPopulationGraph,
     RegionData
 )
 
 urlpatterns = [
 
     # Страницы с использованием этих графиков (в формате HTML)
-    path(
-        'population_distribution/',
-        ShowPopulationDistribution.as_view(),
-        name='population_distribution_page'
-    ),
-    path(
-        'children_vs_population/',
-        ShowChildrenVsPopulation.as_view(),
-        name='children_vs_population_page'
-    ),
+    path('population_distribution/',
+         ShowPopulationGraph.as_view(
+             template_name='statistics_tools/population_distribution.html'),
+         name='population_distribution'),
+    path('children_vs_population/',
+         ShowPopulationGraph.as_view(
+             template_name='statistics_tools/children_vs_population.html'),
+         name='children_vs_population'),
 
     # Графики распределения населения и числа детей (в формате PNG)
     path(

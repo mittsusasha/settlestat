@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-
 # Воспользуемся паттерном Декоратор
 # Мы просто будем добавлять водяной знак к нашим графикам
 # Не слишком серьёзная функциональность, конечно — но структуру объектов мы не меняем
@@ -7,10 +6,18 @@ import matplotlib.pyplot as plt
 
 class AddWatermark:
     def __call__(self, graph):
-        watermark_text = "Курсовая работа по ТПиИСРСИИ"
-        # Добавляем подграфик для выравнивания водяного знака
-        ax = graph.add_subplot(111)
-        # И добавляем сам водяной знак
-        ax.text(0.01, 0.99, watermark_text, fontsize=10, color='gray',
-                alpha=0.5, ha='left', va='top', transform=ax.transAxes)
-        return graph
+        watermark_text = "Курсовая по ТПиИСРСИИ"
+
+        # Добавляем наш водяной знак
+        graph.text(
+            # Положение водяного знака (в процентах от ширины и высоты фигуры)
+            0.5, 0.5,
+            watermark_text,  # Текст установили выше
+            fontsize=30,    # Размер шрифта
+            color='gray',   # Цвет текста
+            alpha=0.5,      # Прозрачность
+            ha='center',    # Горизонтальное выравнивание
+            va='center',    # Вертикальное выравнивание
+            rotation=45     # Угол наклона текста
+        )
+        return graph        # Возвращаем график с водяным знаком

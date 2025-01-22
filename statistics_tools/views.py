@@ -36,7 +36,7 @@ class FactoryGraph(View):
     def get(self, request):
         # Мы будем использовать наш фабричный метод для создания графиков... любых графиков.
         buf = BytesIO()
-        graph = self.create_graph()         # Создаем график
+        graph = self.create_graph()      # Создаем график
         graph = self.watermark(graph)    # И лепим на него водяной знак
         graph.tight_layout()
         graph.savefig(buf, format='png')
@@ -45,8 +45,6 @@ class FactoryGraph(View):
         return HttpResponse(buf, content_type='image/png')
 
 # График для изучения распределения населения по регионам — визуализация с использованием MatplotLib и Seaborn
-
-
 class PopulationDistribution(FactoryGraph):
 
     def create_graph(self):
@@ -77,7 +75,7 @@ class PopulationDistribution(FactoryGraph):
         # Подпись к оси X уберём, там и так подписаны регионы
         ax.set_xlabel('')
 
-        # Отправляем изображение пользователю как HTTP-ответ
+        # Отправляем график пользователю
         return graph
 
 
@@ -99,19 +97,20 @@ class ChildrenVsPopulation(FactoryGraph):
         ax.set_xlabel('Общее население, человек',
                       fontsize=12)  # Подпись к оси X
 
+        # Отправляем график пользователю
         return graph
 
 
-# Класс представления непосредственно для отображения графика распределения населения по регионам
-class ShowPopulationDistribution(View):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'statistics_tools/population_distribution.html')
+# Класс представления для отображения графиков
+class ShowPopulationGraph(View):
+    template_name = None    # Для переиспользования шаблон здесь указывать не будем
+    # Пусть он потом указывается в наследнике или в маршруте
 
-
-# Класс представления непосредственно для отображения графика зависимости числа детей от населения
-class ShowChildrenVsPopulation(View):
     def get(self, request, *args, **kwargs):
-        return render(request, 'statistics_tools/children_vs_population.html')
+        if self.template_name is None:
+            raise ValueError(
+                'Для отображения графика нужно задать аттрибут template_name !')
+        return render(request, self.template_name)
 
 
 # Обработка выбора региона и показ данных для выбранного пользователем региона
@@ -145,7 +144,8 @@ class RegionData(View):
         total_municipalities = len(municipalities)
         total_settlements = settlements.count()
         children_percentage = round(
-            (total_children / total_population) * 100, 2) if total_population else 0    # Чтобы не делить на ноль
+            # Чтобы не делить на ноль
+            (total_children / total_population) * 100, 2) if total_population else 0
 
         # Форматируем числа с разделением тысяч пробелами для улучшения читаемости (см. ниже)
         formatted_settlements = []
