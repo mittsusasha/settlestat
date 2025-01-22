@@ -10,33 +10,51 @@
 <h2>Пожалуйста, выберите интересующий вас регион для просмотра данных</h2>
 
 <!-- Форма выбора региона -->
-<form method="POST">
+<form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    <label for="region">Выберите интересующий вас субъект РФ: </label>
+    <select name="region" id="region">
+        {% for region in regions %}
+        <option value="{{ region }}" {% if region == selected_region %}selected{% endif %}>{{ region }}</option>
+        {% endfor %}
+    </select>
     <button type="submit">Показать данные</button>
 </form>
 
-{% if region_data %}
-    <h3>Данные по региону: {{ form.region.value }}</h3>
+{% if selected_region %}
+
+    <!-- Сводная информация -->
+    <h2>Сводная информация по выбранному региону: </h2>
+    <ul>
+        <li><strong>Общее население региона:</strong> {{ total_population }}</li>
+        <li><strong>Число детей до 18 лет:</strong> {{ total_children }}</li>
+        <li><strong>Отношение детей к общему населению:</strong> {{ children_percentage }}%</li>
+        <li><strong>Количество муниципалитетов:</strong> {{ municipalities|length }}</li>
+        <li><strong>Количество населённых пунктов:</strong> {{ total_settlements }}</li>
+        <li><strong>Список муниципалитетов:</strong> {{ municipalities|join:", " }}</li>
+    </ul>
+
+    <h2>Подробные данные по региону {{ selected_region }}:</h2>
+    <!-- Таблица с данными -->
     <table border="1">
         <thead>
             <tr>
                 <th>Муниципалитет</th>
-                <th>Поселение</th>
+                <th>Населённый пункт</th>
                 <th>Тип</th>
                 <th>Население</th>
-                <th>Дети</th>
+                <th>Дети (до 18 лет)</th>
             </tr>
         </thead>
         <tbody>
-            {% for settlement in region_data %}
-                <tr>
-                    <td>{{ settlement.municipality }}</td>
-                    <td>{{ settlement.settlement }}</td>
-                    <td>{{ settlement.type }}</td>
-                    <td>{{ settlement.population }}</td>
-                    <td>{{ settlement.children }}</td>
-                </tr>
+            {% for settlement in settlements %}
+            <tr>
+                <td>{{ settlement.municipality }}</td>
+                <td>{{ settlement.settlement }}</td>
+                <td>{{ settlement.type }}</td>
+                <td>{{ settlement.population }}</td>
+                <td>{{ settlement.children }}</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
