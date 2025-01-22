@@ -6,6 +6,18 @@
     <title>Количество детей и население</title>
 </head>
 <body>
+        <!-- Меню для нашего приложения -->
+        <nav>
+            <tr>
+                <td><a href="/">Главная страница приложения</a></td> | Функции: 
+                <td><a href="/delete/upload/">Добавление / удаление данных</a></td> | 
+                <td><a href="/statistics_tools/region_data/">Просмотр данных по региону</a></td> Графики:  
+                <td><a href="/statistics_tools/children_vs_population/">Количество детей и население</a></td> | 
+                <td><a href="/statistics_tools/population_distribution/">Распределение населения по регионам</a></td>
+            </tr>
+        </nav>
+        <hr>
+        
     <h2>Зависимость числа детей до 18 лет от общего населения населённого пункта: </h2>
     <img src="{% url 'children_vs_population_graph' %}" alt="График зависимости детей от населения" />
 </body>

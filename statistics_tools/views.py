@@ -8,6 +8,7 @@ from settlestat.models import Settlement
 from django.http import HttpResponse
 from io import BytesIO
 import seaborn as sns
+from .decorators import AddWatermark
 from django.shortcuts import render
 from django.db.models import Sum, Count
 import matplotlib
@@ -23,10 +24,32 @@ matplotlib.use('Agg')  # Используем бэкенд Agg без графи
 # Но я посчитал такое решение недостаточно надёжным с точки зрения переносимости (возможно, ошибочно)
 
 
-# График для изучения распределения населения по регионам — визуализация с использованием MatplotLib и Seaborn
-class PopulationDistribution(View):
+# Воспользуемся паттерном Фабричный метод
+# Пусть у нас будет базовый класс для классов построения различных графиков
+class FactoryGraph(View):
+    watermark = AddWatermark()  # Декоратор для создания водяного знака
+
+    def create_graph(self):
+        raise NotImplementedError(
+            'Этот метод нужно переопределять в подклассах!')
 
     def get(self, request):
+        # Мы будем использовать наш фабричный метод для создания графиков... любых графиков.
+        buf = BytesIO()
+        graph = self.create_graph()         # Создаем график
+        graph = self.watermark(graph)    # И лепим на него водяной знак
+        graph.tight_layout()
+        graph.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close(graph)
+        return HttpResponse(buf, content_type='image/png')
+
+# График для изучения распределения населения по регионам — визуализация с использованием MatplotLib и Seaborn
+
+
+class PopulationDistribution(FactoryGraph):
+
+    def create_graph(self):
         # Извлекаем данные датасета из базы данных приложения
         settlements = Settlement.objects.all().values('region', 'population')
         df = pd.DataFrame(list(settlements))
@@ -41,53 +64,42 @@ class PopulationDistribution(View):
         df_sorted = df_grouped.sort_values(by='population')
 
         # Создаём соответствующий график — с логарифмической шкалой, иначе Москва и Петербург слишком велики
-        plt.figure(figsize=(15, 8))     # Сделал побольше, для читаемости
+        # Сделал побольше, для читаемости
+        graph, ax = plt.subplots(figsize=(15, 8))
         # errorbar=None, убрали доверительный интервал, тут он не нужен
         sns.barplot(x='region', y='population', data=df_sorted, errorbar=None)
-        plt.yscale('log')  # Устанавливаем логарифмическую шкалу для оси Y
+        ax.set_yscale('log')  # Устанавливаем логарифмическую шкалу для оси Y
         # Развернём подписи на оси X для наглядности
         plt.xticks(rotation=90, fontsize=10)
-        plt.title(
+        ax.set_title(
             'Распределение населения по регионам (для наглядности используется логарифмическая шкала)')
-        plt.ylabel('Население, человек', fontsize=12)  # Подпись к оси Y
-        plt.xlabel('')  # Подпись к оси X уберём, там и так подписаны регионы
-
-        # Сохраняем получившийся график в буфер
-        buf = BytesIO()
-        plt.tight_layout()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        plt.close()
+        ax.set_ylabel('Население, человек', fontsize=12)  # Подпись к оси Y
+        # Подпись к оси X уберём, там и так подписаны регионы
+        ax.set_xlabel('')
 
         # Отправляем изображение пользователю как HTTP-ответ
-        return HttpResponse(buf, content_type='image/png')
+        return graph
 
 
 # График для изучения зависимости числа детей от населения  — визуализация с использованием MatplotLib и Seaborn
-class ChildrenVsPopulation(View):
-    def get(self, request):
+class ChildrenVsPopulation(FactoryGraph):
+    def create_graph(self):
         # Извлекаем данные датасета из базы данных приложения
         settlements = Settlement.objects.all().values('population', 'children')
         df = pd.DataFrame(list(settlements))
 
         # Создаём соответствующий график
-        plt.figure(figsize=(10, 6))
+        graph, ax = plt.subplots(figsize=(10, 6))
         sns.scatterplot(x='population', y='children', data=df)
-        plt.title(
+        ax.set_title(
             'Зависимость числа детей в населённых пунктах от их общего населения')
 
-        plt.ylabel('Дети до 18 лет, человек', fontsize=12)  # Подпись к оси Y
-        plt.xlabel('Общее население, человек', fontsize=12)  # Подпись к оси X
+        ax.set_ylabel('Дети до 18 лет, человек',
+                      fontsize=12)  # Подпись к оси Y
+        ax.set_xlabel('Общее население, человек',
+                      fontsize=12)  # Подпись к оси X
 
-        # И сохраняем получившийся в результате график в буфер
-        buf = BytesIO()
-        plt.tight_layout()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        plt.close()
-
-        # Отправляем изображение пользователю как HTTP-ответ
-        return HttpResponse(buf, content_type='image/png')
+        return graph
 
 
 # Класс представления непосредственно для отображения графика распределения населения по регионам

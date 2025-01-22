@@ -6,7 +6,19 @@
     <title>Распределение населения по регионам</title>
 </head>
 <body>
-    <h2>График распрелеления населения по регионам:</h2>
+        <!-- Меню для нашего приложения -->
+        <nav>
+            <tr>
+                <td><a href="/">Главная страница приложения</a></td> | Функции: 
+                <td><a href="/delete/upload/">Добавление / удаление данных</a></td> | 
+                <td><a href="/statistics_tools/region_data/">Просмотр данных по региону</a></td> Графики:  
+                <td><a href="/statistics_tools/children_vs_population/">Количество детей и население</a></td> | 
+                <td><a href="/statistics_tools/population_distribution/">Распределение населения по регионам</a></td>
+            </tr>
+        </nav>
+        <hr>
+        
+    <h2>График распределения населения по регионам:</h2>
     <img src="{% url 'population_distribution_graph' %}" alt="Картинка графика распределения населения" />
 </body>
 </html>
