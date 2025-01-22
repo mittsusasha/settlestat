@@ -24,10 +24,10 @@ urlpatterns = [
     path('', views.Settlements_first_view.as_view()),
     # Подключаем также маршруты приложения data_loader
     # path('upload/', include('data_loader.urls')),
-    path('upload/', dl_views.upload_csv, name='upload_csv'),  # Загрузка CSV
-    # path('success/', views.upload_success, name='upload_success'),  # Не пригодится, переход на эту страницу будет из представления upload_csv
-    path('success/', dl_views.upload_success, name='upload_success'),
-    path('delete/', dl_views.delete_csv, name='delete_csv'),
+    path('upload/', include('data_loader.urls')),  # Загрузка CSV
+    # path('success/', include('data_loader.urls')),  # Не пригодится, переход на эту страницу будет из представления upload_csv
+    path('success/', include('data_loader.urls')),
+    path('delete/', include('data_loader.urls')),
     # Подключаем маршруты для функционала нашего приложения статистики
     path('statistics_tools/', include('statistics_tools.urls')),
 ]

@@ -1,5 +1,7 @@
+# По изначальной задумке — основная часть приложения, а по факту — рудимент, выводящий главную страницу
 from django.shortcuts import render
-from django.views.generic.base import View
+# Чтобы наследовать от этого базового класса наш класс
+from django.views import View
 
 from .models import Settlement
 

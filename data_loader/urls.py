@@ -1,8 +1,13 @@
 from django.urls import path
-from . import views
+from .views import FileToDatabase, FileLoader, FileRemover   # Импортируем наш класс
 
+
+# Подключаем маршруты для функционала нашего приложения
 urlpatterns = [
-    path('upload/', views.upload_csv, name='upload_csv.html'),  # Загрузка CSV
-    path('success/', views.upload_success, name='upload_success'),  # Сообщение об успехе загрузки 
-    path('delete/', views.delete_csv, name='delete_csv'),  # Удаление CSV
+    path('upload/', FileLoader.as_view(),
+         name='upload_csv'),  # Загрузка CSV
+    path('success/', FileToDatabase.as_view(),  # Без этого выдаёт AttributeError
+         name='upload_success'),  # Сообщение об успехе загрузки
+    path('delete/', FileRemover.as_view(),
+         name='delete_csv'),  # Удаление CSV
 ]

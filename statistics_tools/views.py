@@ -1,4 +1,6 @@
-# Различные функции для работы со статистикой
+# Различные функции для работы со статистикой — основная функциональность приложения
+# Чтобы наследовать от этого базового класса наш класс
+from django.views import View
 import matplotlib.pyplot as plt
 from .forms import Region_selection_form
 import pandas as pd
@@ -22,90 +24,96 @@ matplotlib.use('Agg')  # Используем бэкенд Agg без графи
 
 
 # График для изучения распределения населения по регионам — визуализация с использованием MatplotLib и Seaborn
+class PopulationDistribution(View):
 
+    def get(self, request):
+        # Извлекаем данные датасета из базы данных приложения
+        settlements = Settlement.objects.all().values('region', 'population')
+        df = pd.DataFrame(list(settlements))
 
-def population_distribution(request):
-    # Извлекаем данные датасета из базы данных приложения
-    settlements = Settlement.objects.all().values('region', 'population')
-    df = pd.DataFrame(list(settlements))
+        # Сперва хотел обойтись строчкой ниже, но здесь не тот случай — мы ведь агрегируем данные из муниципалитетов
+        # df = df.sort_values(by='population')
 
-    # Сперва хотел обойтись строчкой ниже, но здесь не тот случай — мы ведь агрегируем данные из муниципалитетов
-    # df = df.sort_values(by='population')
+        # Сперва сгруппируем данные по регионам, суммируем население в каждом из них
+        df_grouped = df.groupby('region', as_index=False).sum()
 
-    # Сперва сгруппируем данные по регионам, суммируем население в каждом из них
-    df_grouped = df.groupby('region', as_index=False).sum()
+        # И только теперь отсортируем данные по возрастанию для большей наглядности нашего графика
+        df_sorted = df_grouped.sort_values(by='population')
 
-    # И только теперь отсортируем данные по возрастанию для большей наглядности нашего графика
-    df_sorted = df_grouped.sort_values(by='population')
+        # Создаём соответствующий график — с логарифмической шкалой, иначе Москва и Петербург слишком велики
+        plt.figure(figsize=(15, 8))     # Сделал побольше, для читаемости
+        # errorbar=None, убрали доверительный интервал, тут он не нужен
+        sns.barplot(x='region', y='population', data=df_sorted, errorbar=None)
+        plt.yscale('log')  # Устанавливаем логарифмическую шкалу для оси Y
+        # Развернём подписи на оси X для наглядности
+        plt.xticks(rotation=90, fontsize=10)
+        plt.title(
+            'Распределение населения по регионам (для наглядности используется логарифмическая шкала)')
+        plt.ylabel('Население, человек', fontsize=12)  # Подпись к оси Y
+        plt.xlabel('')  # Подпись к оси X уберём, там и так подписаны регионы
 
-    # Создаём соответствующий график — с логарифмической шкалой, иначе Москва и Петербург слишком велики
-    plt.figure(figsize=(15, 8))     # Сделал побольше, для читаемости
-    # errorbar=None, убрали доверительный интервал, тут он не нужен
-    sns.barplot(x='region', y='population', data=df_sorted, errorbar=None)
-    plt.yscale('log')  # Устанавливаем логарифмическую шкалу для оси Y
-    # Развернём подписи на оси X для наглядности
-    plt.xticks(rotation=90, fontsize=10)
-    plt.title(
-        'Распределение населения по регионам (для наглядности используется логарифмическая шкала)')
-    plt.ylabel('Население, человек', fontsize=12)  # Подпись к оси Y
-    plt.xlabel('')  # Подпись к оси X уберём, там и так подписаны регионы
+        # Сохраняем получившийся график в буфер
+        buf = BytesIO()
+        plt.tight_layout()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close()
 
-    # Сохраняем получившийся график в буфер
-    buf = BytesIO()
-    plt.tight_layout()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    plt.close()
-
-    # Отправляем изображение пользователю как HTTP-ответ
-    return HttpResponse(buf, content_type='image/png')
+        # Отправляем изображение пользователю как HTTP-ответ
+        return HttpResponse(buf, content_type='image/png')
 
 
 # График для изучения зависимости числа детей от населения  — визуализация с использованием MatplotLib и Seaborn
+class ChildrenVsPopulation(View):
+    def get(self, request):
+        # Извлекаем данные датасета из базы данных приложения
+        settlements = Settlement.objects.all().values('population', 'children')
+        df = pd.DataFrame(list(settlements))
+
+        # Создаём соответствующий график
+        plt.figure(figsize=(10, 6))
+        sns.scatterplot(x='population', y='children', data=df)
+        plt.title(
+            'Зависимость числа детей в населённых пунктах от их общего населения')
+
+        plt.ylabel('Дети до 18 лет, человек', fontsize=12)  # Подпись к оси Y
+        plt.xlabel('Общее население, человек', fontsize=12)  # Подпись к оси X
+
+        # И сохраняем получившийся в результате график в буфер
+        buf = BytesIO()
+        plt.tight_layout()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close()
+
+        # Отправляем изображение пользователю как HTTP-ответ
+        return HttpResponse(buf, content_type='image/png')
 
 
-def children_vs_population(request):
-    # Извлекаем данные датасета из базы данных приложения
-    settlements = Settlement.objects.all().values('population', 'children')
-    df = pd.DataFrame(list(settlements))
-
-    # Создаём соответствующий график
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(x='population', y='children', data=df)
-    plt.title('Зависимость числа детей в населённых пунктах от их общего населения')
-
-    plt.ylabel('Дети до 18 лет, человек', fontsize=12)  # Подпись к оси Y
-    plt.xlabel('Общее население, человек', fontsize=12)  # Подпись к оси X
-
-    # И сохраняем получившийся в результате график в буфер
-    buf = BytesIO()
-    plt.tight_layout()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    plt.close()
-
-    # Отправляем изображение пользователю как HTTP-ответ
-    return HttpResponse(buf, content_type='image/png')
-
-# Представление непосредственно для отображения графика распределения населения по регионам
+# Класс представления непосредственно для отображения графика распределения населения по регионам
+class ShowPopulationDistribution(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'statistics_tools/population_distribution.html')
 
 
-def show_population_distribution(request):
-    return render(request, 'statistics_tools/population_distribution.html')
-
-# Представление непосредственно для отображения графика зависимости числа детей от населения
-
-
-def show_children_vs_population(request):
-    return render(request, 'statistics_tools/children_vs_population.html')
+# Класс представления непосредственно для отображения графика зависимости числа детей от населения
+class ShowChildrenVsPopulation(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'statistics_tools/children_vs_population.html')
 
 
 # Обработка выбора региона и показ данных для выбранного пользователем региона
+class RegionData(View):
+    # Показываем (пустую) форму для выбора региона, если пришёл запрос GET на её получение
+    def get(self, request, *args, **kwargs):
+        return render(request, 'statistics_tools/region_data.html', {
+            'regions': Settlement.objects.values_list('region', flat=True).distinct().order_by('region'),
+            'settlements': None,
+            'selected_region': None,
+        })
 
-
-def region_data(request):
     # Обрабатываем форму выбора региона, если он был выбран пользователем (пришёл в запросе POST)
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):
         selected_region = request.POST.get('region')
         # Выборку населённых пунктов производим с сортировкой по населению (по убыванию) для большей наглядности
         settlements = Settlement.objects.filter(
@@ -153,12 +161,5 @@ def region_data(request):
             'children_percentage': children_percentage,
             'municipalities': municipalities,
         })
-
-    # Иначе показываем форму для выбора региона (если пришёл запрос GET на её получение)
-    return render(request, 'statistics_tools/region_data.html', {
-        'regions': Settlement.objects.values_list('region', flat=True).distinct().order_by('region'),
-        'settlements': None,
-        'selected_region': None,
-    })
 
 # Кстати, .order_by('region' в GET- и POST- запросах сортирует регионы в алфавитном порядке для всплывающего меню
