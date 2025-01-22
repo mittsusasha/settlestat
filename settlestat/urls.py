@@ -24,7 +24,8 @@ urlpatterns = [
     path('', views.Settlements_first_view.as_view()),
     # Подключаем также маршруты приложения data_loader
     # path('upload/', include('data_loader.urls')),
-    path('upload/', dl_views.upload_csv, name='upload_csv.html'),  # Загрузка CSV
+    path('upload/', dl_views.upload_csv, name='upload_csv'),  # Загрузка CSV
     # path('success/', views.upload_success, name='upload_success'),  # Не пригодится, переход на эту страницу будет из представления upload_csv
-    path('success/', dl_views.upload_success, name='upload_success.html'),
+    path('success/', dl_views.upload_success, name='upload_success'),
+    path('delete/', dl_views.delete_csv, name='delete_csv'),
 ]

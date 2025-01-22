@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение удаления датасета</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .cancel-button {
+            background-color: #f44336;
+        }
+        .cancel-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Заголовок страницы -->
+    <h2>Подтверждение удаления датасета</h2>
+
+    <!-- Выводим сообщение о результате удаления или об ошибке -->
+    <div class="message-container">
+        <!-- Если сообщение передано, то отображаем его -->
+        {% if message %}
+            <p>{{ message }}</p>
+        {% else %}
+            <p>Вы уверены, что хотите удалить датасет из базы данных приложения? После удаления вам придётся загружать CSV-файл с датасетом заново.</p>
+            <p>Пожалуйста, подтвердите своё решение или вернитесь в меню загрузки через кнопку отмены: </p>
+        {% endif %}
+    </div>
+
+    <!-- Кнопка для возврата к меню загрузки по факту дублировала кнопку Отмена -->
+     <!-- 
+    <p><a href="{% url return_url %}"><button>Вернуться к меню загрузки</button></a></p>
+    -->
+
+    <!-- Форма для подтверждения удаления -->
+    <div class="button-container">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Удалить датасет из БД</button>
+        </form>
+        <!-- Кнопка отмены -->
+        <a href="{% url 'upload_csv' %}">
+            <button class="cancel-button">Отмена!</button>
+        </a>
+    </div>
+</body>
+</html>

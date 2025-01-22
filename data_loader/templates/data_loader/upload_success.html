@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Успешная загрузка</title>
+    <title>Датасет загружен успешно!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h2 {
+            color: #4CAF50;
+        }
+    </style>
 </head>
 <body>
     <h2>Данные датасета успешно загружены в базу данных!</h2>
+    <a href="{% url 'upload_csv' %}">Вернуться к меню загрузки</a>
 </body>
 </html>

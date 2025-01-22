@@ -3,22 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добро пожаловать в мир статистики! ^^</title>
+    <title>Добро пожаловать в мир статистики!</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f9;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>В таблице имеются следующие данные о населённых пунктах: </h2>
+    <h2>Данные о населённых пунктах:</h2>
 
-    <!-- Используем шаблонные теги, возможности Django HTML, так меньше кода-->
-<ul>
-    {% for obj in first_settlements %}
-        <li>{{ obj }}</li>
-    {% endfor %}
-</ul>
+        <!-- Используем шаблонные теги, возможности Django HTML, так меньше кода-->
+    {% if first_settlements %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Регион</th>
+                    <th>Муниципалитет</th>
+                    <th>Населённый пункт</th>
+                    <th>Тип</th>
+                    <th>Население</th>
+                    <th>Дети (до 18 лет)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in first_settlements %}
+                    <tr>
+                        <td>{{ obj.region }}</td>
+                        <td>{{ obj.municipality }}</td>
+                        <td>{{ obj.settlement }}</td>
+                        <td>{{ obj.type }}</td>
+                        <td>{{ obj.population }}</td>
+                        <td>{{ obj.children }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Данные датасета не обнаружены. Пожалуйста, <a href="{% url 'upload_csv' %}">загрузите CSV-файл</a>.</p>
+    {% endif %}
 
-{% if settlements_left > 0 %}
-    <p>И ещё {{ settlements_left }} строк.</p>
-{% endif %}
+    {% if settlements_left > 0 %}
+        <p>И ещё {{ settlements_left }} строк.</p>
+    {% endif %}
+
+    <p>В случае необходимости, вы также можете <a href="{% url 'upload_csv' %}">удалить датасет</a> из базы данных приложения.</p>
 
 </body>
 </html>
