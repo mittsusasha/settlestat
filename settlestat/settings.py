@@ -38,8 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'settlestat',   # добавляем своё приложение в список установленных, чтобы работала миграция... и всё остальное
-    'data_loader',  # и второе тоже добавляем
+    'settlestat',   # добавляем свои приложения в список установленных, чтобы работала миграция... и всё остальное
+    'data_loader',  
+    'statistics_tools',
 ]
 
 MIDDLEWARE = [

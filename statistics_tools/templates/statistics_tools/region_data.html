@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр данных по региону</title>
+</head>
+<body>
+
+<h2>Пожалуйста, выберите интересующий вас регион для просмотра данных</h2>
+
+<!-- Форма выбора региона -->
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Показать данные</button>
+</form>
+
+{% if region_data %}
+    <h3>Данные по региону: {{ form.region.value }}</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Муниципалитет</th>
+                <th>Поселение</th>
+                <th>Тип</th>
+                <th>Население</th>
+                <th>Дети</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for settlement in region_data %}
+                <tr>
+                    <td>{{ settlement.municipality }}</td>
+                    <td>{{ settlement.settlement }}</td>
+                    <td>{{ settlement.type }}</td>
+                    <td>{{ settlement.population }}</td>
+                    <td>{{ settlement.children }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+</body>
+</html>

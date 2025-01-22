@@ -28,4 +28,6 @@ urlpatterns = [
     # path('success/', views.upload_success, name='upload_success'),  # Не пригодится, переход на эту страницу будет из представления upload_csv
     path('success/', dl_views.upload_success, name='upload_success'),
     path('delete/', dl_views.delete_csv, name='delete_csv'),
+    # Подключаем маршруты для функционала нашего приложения статистики
+    path('statistics_tools/', include('statistics_tools.urls')),
 ]
